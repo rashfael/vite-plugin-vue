@@ -1,4 +1,5 @@
 import _debug from 'debug'
+import type { SourceDescription } from 'rollup'
 import type { SFCBlock, SFCDescriptor } from 'vue/compiler-sfc'
 import type { HmrContext, ModuleNode } from 'vite'
 import { isCSSRequest } from 'vite'
@@ -23,7 +24,7 @@ const directRequestRE = /(?:\?|&)direct\b/
  * Vite-specific HMR handling
  */
 export async function handleHotUpdate(
-  { file, modules, read }: HmrContext,
+  { file, modules, read, server }: HmrContext,
   options: ResolvedOptions,
 ): Promise<ModuleNode[] | void> {
   const prevDescriptor = getDescriptor(file, options, false)
@@ -34,7 +35,24 @@ export async function handleHotUpdate(
 
   setPrevDescriptor(file, prevDescriptor)
 
-  const content = await read()
+  let content = await read()
+
+  const vuePlugin = server.config.plugins.find((p) => p.name === 'vite:vue')
+  if (vuePlugin) {
+    for (const hook of server.config.getSortedPluginHooks('transform')) {
+      if (hook === vuePlugin.transform) break
+      const transformResult = await hook(content, file)
+      if (transformResult) {
+        if ((transformResult as Partial<SourceDescription>).code) {
+          content = (transformResult as Partial<SourceDescription>)
+            .code as string
+        } else {
+          content = transformResult as string
+        }
+      }
+    }
+  }
+
   const { descriptor } = createDescriptor(file, content, options)
 
   let needRerender = false
