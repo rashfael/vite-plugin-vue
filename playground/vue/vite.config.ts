@@ -1,6 +1,7 @@
 import { defineConfig, splitVendorChunkPlugin } from 'vite'
 import vuePlugin from '@vitejs/plugin-vue'
 import { vueI18nPlugin } from './CustomBlockPlugin'
+import { vueCustomScriptMacroPlugin } from './CustomScriptMacroPlugin'
 
 export default defineConfig({
   resolve: {
@@ -10,6 +11,7 @@ export default defineConfig({
     },
   },
   plugins: [
+    vueCustomScriptMacroPlugin,
     vuePlugin({
       reactivityTransform: true,
     }),

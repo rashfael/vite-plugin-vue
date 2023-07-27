@@ -10,7 +10,7 @@ import Node from './Node.vue'
 
 let foo: number = 0
 
-const count = ref(foo)
+const count = $ref(foo)
 </script>
 
 <style>
