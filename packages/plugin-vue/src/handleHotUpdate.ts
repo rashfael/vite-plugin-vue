@@ -23,7 +23,7 @@ const directRequestRE = /(?:\?|&)direct\b/
  * Vite-specific HMR handling
  */
 export async function handleHotUpdate(
-  { file, modules, read }: HmrContext,
+  { file, modules, read, server }: HmrContext,
   options: ResolvedOptions,
 ): Promise<ModuleNode[] | void> {
   const prevDescriptor = getDescriptor(file, options, false)
@@ -42,7 +42,10 @@ export async function handleHotUpdate(
   const mainModule = getMainModule(modules)
   const templateModule = modules.find((m) => /type=template/.test(m.url))
 
-  const scriptChanged = hasScriptChanged(prevDescriptor, descriptor)
+  const scriptChanged = hasScriptChanged(
+    prevDescriptor.original ? prevDescriptor.original : prevDescriptor,
+    descriptor,
+  )
   if (scriptChanged) {
     affectedModules.add(getScriptModule(modules) || mainModule)
   }

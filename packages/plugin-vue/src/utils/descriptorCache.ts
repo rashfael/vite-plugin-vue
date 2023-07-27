@@ -18,6 +18,7 @@ export function createDescriptor(
   filename: string,
   source: string,
   { root, isProduction, sourceMap, compiler }: ResolvedOptions,
+  originalSource?: string,
 ): SFCParseResult {
   const { descriptor, errors } = compiler.parse(source, {
     filename,
@@ -28,6 +29,14 @@ export function createDescriptor(
   // project (relative to root) and on different systems.
   const normalizedPath = slash(path.normalize(path.relative(root, filename)))
   descriptor.id = getHash(normalizedPath + (isProduction ? source : ''))
+
+  if (originalSource && source !== originalSource) {
+    const { descriptor: originalDescriptor } = compiler.parse(originalSource, {
+      filename,
+      sourceMap,
+    })
+    descriptor.original = originalDescriptor
+  }
 
   cache.set(filename, descriptor)
   return { descriptor, errors }

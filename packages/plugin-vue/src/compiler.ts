@@ -2,6 +2,7 @@
 declare module 'vue/compiler-sfc' {
   interface SFCDescriptor {
     id: string
+    original?: SFCDescriptor
   }
 }
 

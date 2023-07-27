@@ -37,7 +37,12 @@ export async function transformMain(
 
   // prev descriptor is only set and used for hmr
   const prevDescriptor = getPrevDescriptor(filename)
-  const { descriptor, errors } = createDescriptor(filename, code, options)
+  const { descriptor, errors } = createDescriptor(
+    filename,
+    code,
+    options,
+    pluginContext.originalCode,
+  )
 
   if (errors.length) {
     errors.forEach((error) =>
